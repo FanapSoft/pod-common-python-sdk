@@ -8,7 +8,7 @@ with open("pod_common/version.py") as fp:
     exec(fp.read(), version)
 
 
-requires = ["pod-base>=1,<2"]
+requires = ["pod-base>=1.0.3,<2"]
 
 setup(
     name="pod-common",

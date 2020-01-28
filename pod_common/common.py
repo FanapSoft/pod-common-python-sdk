@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import unicode_literals
 from os import path
 from pod_base import PodBase, calc_offset
 
@@ -8,29 +9,30 @@ class PodCommon(PodBase):
     def __init__(self, api_token, token_issuer="1", server_type="sandbox", config_path=None,
                  sc_api_key="", sc_voucher_hash=None):
         here = path.abspath(path.dirname(__file__))
-        self._services_file_path = path.join(here, "services.ini")
+        self._services_file_path = path.join(here, "services.json")
         super(PodCommon, self).__init__(api_token, token_issuer, server_type, config_path, sc_api_key, sc_voucher_hash,
                                         path.join(here, "json_schema.json"))
 
-    def get_ott(self):
+    def get_ott(self, **kwargs):
         """
         دریافت آخرین توکن یکبار مصرف
 
         :return
         """
-        self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/ott"), headers=self._get_headers())
-        return self._request.last_ott
+        self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/ott"), headers=self._get_headers()
+                           , **kwargs)
+        return str(self._request.last_ott)
 
-    def currency_list(self):
+    def currency_list(self, **kwargs):
         """
         دریافت لیست ارزها
 
         :return: list
         """
-        return self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/currencyList"),
-                                  headers=self._get_headers())
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/currencyList"),
+                                  headers=self._get_headers(), **kwargs)
 
-    def guild_list(self, name="", page=1, size=50):
+    def guild_list(self, name=None, page=1, size=50, **kwargs):
         """
         لیست اصناف
 
@@ -43,13 +45,13 @@ class PodCommon(PodBase):
             "offset": calc_offset(page, size),
             "size": size
         }
-        if name.__len__():
+        if name is not None:
             params["name"] = name
 
-        return self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/guildList"), params=params,
-                                  headers=self._get_headers())
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/guildList"), params=params,
+                                  headers=self._get_headers(), **kwargs)
 
-    def add_tag_tree_category(self, name, desc=""):
+    def add_tag_tree_category(self, name, desc="", **kwargs):
         """
         ایجاد دسته بندی برچسب درختی
 
@@ -57,19 +59,20 @@ class PodCommon(PodBase):
         :param str desc: توضحیات
         :return
         """
+        params = {}
+        if name.__len__():
+            params["name"] = name
 
-        params = {
-            "name": name,
-            "desc": desc
-        }
+        if desc.__len__():
+            params["desc"] = desc
 
-        result = self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/biz/addTagTreeCategory", "post"),
-                                    params=params,
-                                    headers=self._get_headers())
+        self._validate(params, "addTagTreeCategory")
 
-        return result
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/biz/addTagTreeCategory",
+                                                                                  "post"),
+                                  params=params, headers=self._get_headers(), **kwargs)
 
-    def get_tag_tree_category_list(self, params=None, page=1, size=50):
+    def get_tag_tree_category_list(self, params=None, page=1, size=50, **kwargs):
         """
         لیست دسته بندی های برچسب درختی
 
@@ -86,10 +89,12 @@ class PodCommon(PodBase):
             "size": size
         })
 
-        return self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/biz/getTagTreeCategoryList"),
-                                  params=params, headers=self._get_headers())
+        self._validate(params, "getTagTreeCategoryList")
 
-    def update_tag_tree_category(self, category_id, name, desc, enable=True):
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/biz/getTagTreeCategoryList"),
+                                  params=params, headers=self._get_headers(), **kwargs)
+
+    def update_tag_tree_category(self, category_id, name, desc, enable=True, **kwargs):
         """
         ویرایش اطلاعات دسته بندی برچسب درختی
 
@@ -103,14 +108,16 @@ class PodCommon(PodBase):
             "id": category_id,
             "name": name,
             "desc": desc,
-            "enable": enable.__str__().lower(),
+            "enable": enable
         }
 
-        return self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/biz/updateTagTreeCategory", "post"),
-                                  params=params,
-                                  headers=self._get_headers())
+        self._validate(params, "updateTagTreeCategory")
 
-    def add_tag_tree(self, name, code, category_id, parent_id=0):
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/biz/updateTagTreeCategory",
+                                                                                  "post"),
+                                  params=params, headers=self._get_headers(), **kwargs)
+
+    def add_tag_tree(self, name, code, category_id, parent_id=0, **kwargs):
         """
         اضافه کردن تگ به درخت تگ ها
 
@@ -127,19 +134,21 @@ class PodCommon(PodBase):
             "code": code
         }
 
-        if parent_id > 0:
+        if parent_id:
             params["parentId"] = parent_id
 
-        return self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/biz/addTagTree", "post"),
-                                  params=params, headers=self._get_headers())
+        self._validate(params, "addTagTree")
 
-    def _get_tag_tree_list(self, params):
-        self._validate(params, "get_tag_tree_list")
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/biz/addTagTree", "post"),
+                                  params=params, headers=self._get_headers(), **kwargs)
 
-        return self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/biz/getTagTreeList"), params=params,
-                                  headers=self._get_headers())
+    def _get_tag_tree_list(self, params, **kwargs):
+        self._validate(params, "getTagTreeList")
 
-    def get_tag_tree_list(self, category_id, level_count=3, level=0, parent_id=0):
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/biz/getTagTreeList"),
+                                  params=params, headers=self._get_headers(), **kwargs)
+
+    def get_tag_tree_list(self, category_id, level_count=3, level=0, parent_id=0, **kwargs):
         """
         لیست برچسب درختی
 
@@ -156,13 +165,15 @@ class PodCommon(PodBase):
             "level": level
         }
 
-        if parent_id > 0:
+        if parent_id:
             params["parentId"] = parent_id
             del params["level"]
 
         return self._get_tag_tree_list(params)
 
-    def get_tag_tree(self, tag_tree_id):
+        return self._get_tag_tree_list(params, **kwargs)
+
+    def get_tag_tree(self, tag_tree_id, **kwargs):
         """
         دریافت جزئیات یک برچسب درختی
 
@@ -173,13 +184,13 @@ class PodCommon(PodBase):
             "id": tag_tree_id
         }
 
-        result = self._get_tag_tree_list(params)
+        result = self._get_tag_tree_list(params, **kwargs)
         if len(result):
             return result[0]
 
         return {}
 
-    def update_tag_tree(self, tag_tree_id, name, parent_id=0, enable=True):
+    def update_tag_tree(self, tag_tree_id, name, parent_id=0, enable=True, **kwargs):
         """
         ویرایش برچسب درختی
 
@@ -192,11 +203,13 @@ class PodCommon(PodBase):
         params = {
             "id": tag_tree_id,
             "name": name,
-            "enable": enable.__str__().lower()
+            "enable": enable
         }
 
-        if parent_id > 0:
+        if parent_id:
             params["parentId"] = parent_id
 
-        return self._request.call(super(PodCommon, self)._get_sc_product_id("/nzh/biz/updateTagTree", "post"),
-                                  params=params, headers=self._get_headers())
+        self._validate(params, "updateTagTree")
+
+        return self._request.call(super(PodCommon, self)._get_sc_product_settings("/nzh/biz/updateTagTree", "post"),
+                                  params=params, headers=self._get_headers(), **kwargs)
