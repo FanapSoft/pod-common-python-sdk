@@ -16,23 +16,23 @@ try:
     # New Tag Tree Category :
     #  {'id': 1749, 'name': 'Category 2019_12_24_17_27_15', 'description': 'Create category with Python', ...}
     #
-    # category_name = "Updated " + category_name
-    # updated = pod_common.update_tag_tree_category(category_id=category['id'], name=category_name,
-    #                                               desc=category['description'], enable=True)
-    # print("Updated Tag Tree Category :\n", updated)
-    # # OUTPUT
-    # # Updated Tag Tree Category :
-    # #  {'id': 1753, 'name': 'Updated Category 2019_12_24_17_30_15', 'description': 'Create category with Python', ...}
-    #
-    # categories = pod_common.get_tag_tree_category_list()
-    # print(categories)
-    # print("Total Category : ", pod_common.total_items())
-    # # OUTPUT
-    # # [{'id': 421, 'name': 'hi', 'description': 'توضیحات دسته بندی کلی', ... },
-    # # {'id': 441, 'name': 'محصولات دیجیتال', ... },
-    # # {'id': 442, 'name': 'دسته بندی کلی15', ...}
-    # # ... ]
-    # # Total Category :  326
+    category_name = "Updated " + category_name
+    updated = pod_common.update_tag_tree_category(category_id=category['id'], name=category_name,
+                                                  desc=category['description'], enable=True)
+    print("Updated Tag Tree Category :\n", updated)
+    # OUTPUT
+    # Updated Tag Tree Category :
+    #  {'id': 1753, 'name': 'Updated Category 2019_12_24_17_30_15', 'description': 'Create category with Python', ...}
+
+    categories = pod_common.get_tag_tree_category_list()
+    print(categories)
+    print("Total Category : ", pod_common.total_items())
+    # OUTPUT
+    # [{'id': 421, 'name': 'hi', 'description': 'توضیحات دسته بندی کلی', ... },
+    # {'id': 441, 'name': 'محصولات دیجیتال', ... },
+    # {'id': 442, 'name': 'دسته بندی کلی15', ...}
+    # ... ]
+    # Total Category :  326
 
 except APIException as e:
     print("API Exception\nError {0}\nReference Number : {1}".format(e.message, e.reference_number))
